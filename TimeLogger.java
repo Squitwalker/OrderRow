@@ -49,10 +49,12 @@ public class TimeLogger {
         this.time = time;
     }
 
+    private static final String LEADERBOARD_FILE = "leaderboard.txt"; // relative to working directory
+
     // Write a new entry to the file
     public void writeToFile() {
         try {
-            FileWriter fw = new FileWriter("./src/leaderboard.txt", true); // append mode
+            FileWriter fw = new FileWriter(LEADERBOARD_FILE, true); // append mode
             PrintWriter pw = new PrintWriter(fw);
 
             pw.println(name + " " + time); // each entry on its own line
@@ -72,7 +74,11 @@ public class TimeLogger {
         ArrayList<String> lines = new ArrayList<>();
 
         try {
-            File file = new File("./src/leaderboard.txt");
+            File file = new File(LEADERBOARD_FILE);
+            if (!file.exists()) {
+                // maybe running from project root with src folder
+                file = new File("src" + File.separator + LEADERBOARD_FILE);
+            }
             Scanner scanner = new Scanner(file);
 
             while (scanner.hasNextLine()) {
