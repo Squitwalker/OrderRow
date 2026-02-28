@@ -16,9 +16,9 @@ public class Mod {
 	private int armor;
 	private int heal;
 	
-	private boolean hitAll;
-	private boolean duper;
-	private boolean ephemeral;
+	private boolean hitAll; //hits all enemies
+	private boolean duper; //duplicates
+	private boolean ephemeral; //disappears after use until next batt
 	
 	//TODO: ADD EVERYTHING FROM HERE INTO APPLYMOD METHOD IN FUTURE ADDITIONS
 	

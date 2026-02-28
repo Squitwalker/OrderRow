@@ -13,12 +13,15 @@ public class Card {
 	private int dmg;
 	private int armor;
 	private int heal;
-	
+	private int stun; //Adds time to enemy
+
 	private String name;
 	private String description; //optional addition to ToString
 	
 	public Card duplicate; 
-	
+
+
+
 	private boolean hitAll;
 	private boolean duper;
 	private boolean buff;
@@ -90,7 +93,7 @@ public class Card {
 		}
 		if(type==6) 
 		{
-			name="Suprise";
+			name="Surprise";
 			dmg=10;
 			ephemeral=true;
 		}
@@ -99,6 +102,38 @@ public class Card {
 			name="Snack";
 			heal=5;
 			ephemeral=true;
+		}
+
+		if (type == 8){
+			name = "Fireball"; //TODO: add burn status(?)
+			dmg = 10;
+		}
+
+		if (type == 9)
+		{
+			name = "Roundhouse";
+			dmg = 4;
+			stun = 1;
+		}
+
+		if(type == 10)
+		{
+			name = "Flashlight";
+			dmg=1;
+			stun = 2;
+		}
+
+		if(type == 11)
+		{
+			name = "Re-boot";
+			dmg=2;
+			heal=2;
+
+		}
+		if(type == 12)
+		{
+			name = "Block";
+			armor = 5;
 		}
 		
 	}
@@ -165,6 +200,10 @@ public class Card {
 		if(ephemeral) 
 		{
 			temp+=" Ephemeral"+", ";
+		}
+		if(stun>0)
+		{
+			temp+=stun+" Stun"+", ";
 		}
 		if(!description.equals("")) 
 		{
@@ -279,7 +318,12 @@ public class Card {
 		}
 		return temp;
 	}
-	
+
+	public int getStun()
+	{
+		return stun;
+	}
+
 	public void setDMG(int initDMG) 
 	{
 		dmg=initDMG;

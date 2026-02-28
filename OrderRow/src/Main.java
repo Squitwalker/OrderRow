@@ -2,7 +2,6 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
 
-
 //import javax.swing.JFrame;
 
 public class Main {
@@ -20,8 +19,6 @@ public class Main {
 	public static final String WHITE = "\033[0;37m";   // WHITE
 	
 	//public static JFrame frame = new JFrame();
-	
-	
 	
 	
 	public static void makeMap(ArrayList<Integer> map) 
@@ -139,6 +136,43 @@ public class Main {
 		System.out.println(mod.getName()+" was applied to "+card.getName()+"!");
 		card.setModded(true);
 	}
+
+	//sets up the possible battles in a route, ints represent/initialize enemies by type
+	public static int[] pickEnemies(int currentRound) {
+
+		int[][] route1BattleSetups = new int[][]{ { 1, 2 },
+				{ 2, 2, 2 },
+				{ 2, 3 },
+				{ 1, 4 }};
+		int[][] route2BattleSetups = new int[][]{ { 3, 5 },
+				{ 3, 6 },
+				{ 4, 5, 4 },
+				{ 2, 10, 2 },
+				{ 5, 6 },
+				{ 9, 7 },
+				{ 5, 10 }};
+		int[][] route3BattleSetups = new int[][]{ { 12, 13 },
+				{ 10, 11 },
+				{ 15 },
+				{ 14 },
+				{ 7, 9, 7 },
+				{ 11, 12 },
+				{ 12, 8, 12 },
+				{ 8, 10}};
+
+		if (currentRound >= 1 && currentRound <= 3) {
+			return route1BattleSetups[r.nextInt(0, route1BattleSetups.length)];
+		}
+		else if (currentRound >= 4 && currentRound <= 6) {
+			return route2BattleSetups[r.nextInt(0, route2BattleSetups.length)];
+		}
+		else if (currentRound >= 7 && currentRound <= 9) {
+			return route3BattleSetups[r.nextInt(0, route3BattleSetups.length)];
+		}
+		else {
+			return new int[]{2147483647};
+		}
+	}
 	
 	
 	public static void main(String[] args) {
@@ -170,16 +204,8 @@ public class Main {
 		//frame.setSize(1100, 1000);
 		//frame.setFocusable(true);
 
-		
-		
-		
-		
 		//frame.add(hero);
 		//frame.setVisible(true);
-		
-		
-		
-		
 		
 		int MAXHP=30; //player's HPCAP
 		int HP=30; //player's HP, difficult to heal
@@ -190,11 +216,8 @@ public class Main {
 		ArrayList<Card> deck = new ArrayList<>();
 		ArrayList<Mod> mods = new ArrayList<>();
 		//perhaps add a way to choose a deck or class?
-		
-		
-		
+
 		boolean go = true;
-		
 		
 		System.out.println("deck contains");
 		deck.add(new Card(1));
@@ -202,23 +225,21 @@ public class Main {
 		deck.add(new Card(3));
 		deck.add(new Card(2));
 		
-		
-		
 		System.out.println(getRowString(deck));
 		
 		int roundCount=0;
-		
-		
-		
-		
-		
-		
 		//TODO map + Row Setup
-		
-		
-		
+
+
+		//TODO: ADD STOPWATCH HERE
+
+		Stopwatch.start();
+
 		while(go&&HP>0) 
 		{
+
+
+
 			
 			ArrayList<Integer> map = new ArrayList<>(); //list of ints that represent what player can go to for the next few rounds
 			ArrayList<Integer> route1 = new ArrayList<>();
@@ -309,7 +330,7 @@ public class Main {
 			{
 				
 				//choose Card to add
-				System.out.println("Choose # of Card from deck to add");
+				System.out.println("Choose the # of the Card from deck to add");
 				
 				int tempDex=0;
 				for(Card i:tempDeck) 
@@ -396,7 +417,7 @@ public class Main {
 			}
 			
 			
-			for(int m=0; m<map.size(); m++) 
+			for(int m=0; m<map.size()&HP>0; m++)
 			{
 				Boolean specialEncounter=false; 
 				Enemy special = null;
@@ -435,15 +456,15 @@ public class Main {
 					part="random";
 				}
 				
-				System.out.println("You approached a "+part);
+				System.out.println("You approached a "+part+" area");
 				
 				
 				if(part.equals("shop")) 
 				{
 					boolean shopping=true;
 					Card sale1 = new Card(5); //TODO new Card(r.nextInt(1,8));
-					Card sale2 = new Card(r.nextInt(1,8));
-					Card sale3 = new Card(r.nextInt(1,8));
+					Card sale2 = new Card(r.nextInt(1,10));
+					Card sale3 = new Card(r.nextInt(1,10));
 					int price1 = r.nextInt(25,126);
 					int price2 = r.nextInt(25,126);
 					int price3 = r.nextInt(25,126);
@@ -567,8 +588,16 @@ public class Main {
 								System.out.println();
 								System.out.println("Type the number of Card to remove");
 								int choice2 = in.nextInt()-1;
-								System.out.println(deck.remove(choice2).getName()+" was removed from the deck!");
-								cash-=500;
+								if(deck.get(choice2).isCurse())
+								{
+									System.out.println("You can't remove curses by normal means!");
+								}
+								else
+								{
+									System.out.println(deck.remove(choice2).getName()+" was removed from the deck!");
+									cash-=500;
+								}
+
 							}
 							else 
 							{
@@ -797,10 +826,7 @@ public class Main {
 					}
 					//Pick-An-Arm
 	
-					if(random==3) 
-					{
-						
-					}
+
 					
 					
 					//TODO more mysteries,,, 👻
@@ -808,14 +834,17 @@ public class Main {
 				if(part.equals("fight")) 
 				{
 					ArrayList<Enemy> opp = new ArrayList<Enemy>();
+					int[] battleSetup = pickEnemies(roundCount);
 					if(specialEncounter&&special!=null)
 					{
 						opp.add(special);
 					}
 					else 
 					{
-						opp.add(new Enemy(1)); //TODO: spawn enemy based on progress, spawn multiple
-						opp.add(new Enemy(2));
+						//TODO: spawn enemy based on progress, spawn multiple
+						for (int i : battleSetup) {
+							opp.add(new Enemy(i));
+						}
 					}
 					
 					ARM=0;
@@ -896,8 +925,15 @@ public class Main {
 							{
 								if(!o.isDead())
 								{
+									if(pick.getStun()>0)
+									{
+										System.out.println(opp.get(target).getName()+" is stunned for "+RED+ pick.getStun()+ " turns"+WHITE);
+										opp.get(target).addTime(pick.getStun());
+									}
 									System.out.println(o.getName()+ " Takes "+RED+pick.getDMG()+" DMG"+WHITE);
 									o.takeDMG(pick.getDMG());
+
+
 								}
 							}
 						} 
@@ -982,7 +1018,12 @@ public class Main {
 						if(pick.getDMG()>0&&!pick.isHitAll()) 
 						{
 							
-							opp.get(target).takeDMG(pick.getDMG()); //put other DMG calculations here(?) 
+							opp.get(target).takeDMG(pick.getDMG()); //put other DMG calculations here(?)
+							if(pick.getStun()>0)
+							{
+								System.out.println(opp.get(target).getName()+" is stunned for "+RED+ pick.getStun()+ " turns"+WHITE);
+								opp.get(target).addTime(pick.getStun());
+							}
 							System.out.println(opp.get(target).getName()+" takes "+RED+ pick.getDMG()+ " DMG"+WHITE);
 						}
 						if(pick.getHeal()>0) 
@@ -1054,7 +1095,7 @@ public class Main {
 							//REWARDS!!! $D
 						}
 						
-					}
+					}//!alldead
 					
 					
 					
@@ -1062,9 +1103,50 @@ public class Main {
 					System.out.println();
 					
 				}//fight
+				specialEncounter=false;
+				special=null;
 			}//map
 		} //go&&HP>0
-		System.out.println(RED+"GAME OVER D:"+WHITE);
+		if(HP>0)
+		{
+			System.out.println(YELLOW+ "YOU WIN!!!! :D"+WHITE);
+
+			//TODO: win
+			Stopwatch.stop();
+
+			Scanner input = new Scanner(System.in);
+			System.out.println("Enter your name:");
+            String name = input.nextLine();
+			TimeLogger log = new TimeLogger(name, Stopwatch.showTime());
+			log.writeToFile();
+
+		}
+		else
+		{
+			System.out.println(RED + "GAME OVER D:" + WHITE);
+			Stopwatch.stop();
+
+
+
+
+			Scanner input = new Scanner(System.in);
+			System.out.println("Enter your name:");
+			String name = input.nextLine();
+			TimeLogger log = new TimeLogger(name, Stopwatch.showTime());
+			log.writeToFile();
+
+
+
+
+			Stopwatch.reset();
+		}
+
+		// Leaderboard
+		ArrayList<String> leaderboard = TimeLogger.readAndSortFile();
+
+		System.out.println(BLUE+"Leaderboard:"+WHITE);
+		for (String entry : leaderboard) {
+			System.out.println(entry);
+		}
 	}//main
 }//Main
-		
